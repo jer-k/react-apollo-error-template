@@ -7,18 +7,38 @@ import {
   GraphQLList,
 } from 'graphql';
 
+const NameType = new GraphQLObjectType({
+  name: 'Name',
+  fields: {
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString }
+  }
+})
+
 const PersonType = new GraphQLObjectType({
   name: 'Person',
   fields: {
     id: { type: GraphQLID },
-    name: { type: GraphQLString },
+    name: NameType,
   },
 });
 
 const peopleData = [
-  { id: 1, name: 'John Smith' },
-  { id: 2, name: 'Sara Smith' },
-  { id: 3, name: 'Budd Deey' },
+  { id: 1,
+    name: {
+      firstName: 'John',
+      lastName: 'Smith'
+    }},
+  { id: 2,
+    name: {
+      firstName: 'Sara',
+      lastName: 'Smith'
+    }},
+  { id: 3,
+    name: {
+      firstName: 'Budd',
+      lastName: 'Deey'
+    }},
 ];
 
 const QueryType = new GraphQLObjectType({
@@ -42,7 +62,10 @@ const MutationType = new GraphQLObjectType({
       resolve: function (_, { name }) {
         const person = {
           id: peopleData[peopleData.length - 1].id + 1,
-          name,
+          name: {
+            firstName: name,
+            lastName: name
+          },
         };
 
         peopleData.push(person);

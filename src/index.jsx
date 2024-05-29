@@ -16,11 +16,24 @@ import { Subscriptions } from "./subscriptions.jsx";
 import { Layout } from "./layout.jsx";
 import "./index.css";
 
-const ALL_PEOPLE = gql`
+const ALL_PEOPLE_NO_NAME = gql`
   query AllPeople {
     people {
       id
-      name
+    }
+  }
+`;
+
+const ALL_PEOPLE_WITH_NAME_DEFER = gql`
+  query AllPeople {
+    people {
+      id
+      ... defer {
+        name {
+          firstName
+          lastName
+        }
+      }
     }
   }
 `;
@@ -29,7 +42,10 @@ const ADD_PERSON = gql`
   mutation AddPerson($name: String) {
     addPerson(name: $name) {
       id
-      name
+      name {
+        firstName
+        lastName
+      }
     }
   }
 `;
@@ -78,7 +94,7 @@ function App() {
       ) : (
         <ul>
           {data?.people.map((person) => (
-            <li key={person.id}>{person.name}</li>
+            <li key={person.id}>{person.name.firstName} {person.name.lastName}</li>
           ))}
         </ul>
       )}
