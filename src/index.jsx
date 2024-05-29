@@ -24,7 +24,7 @@ const ALL_PEOPLE_NO_NAME = gql`
 `;
 
 const ALL_PEOPLE_WITH_NAME_DEFER = gql`
-  query AllPeople {
+  query AllPeopleDefer {
     people {
       id
       ... defer {
