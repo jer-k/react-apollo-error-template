@@ -1,5 +1,5 @@
 /*** APP ***/
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import {
@@ -8,7 +8,6 @@ import {
   InMemoryCache,
   gql,
   useQuery,
-  useMutation,
 } from "@apollo/client";
 
 import { link } from "./link.js";
@@ -38,66 +37,36 @@ const ALL_PEOPLE_WITH_NAME_DEFER = gql`
   }
 `;
 
-const ADD_PERSON = gql`
-  mutation AddPerson($name: String) {
-    addPerson(name: $name) {
-      id
-      name {
-        firstName
-        lastName
-      }
-    }
-  }
-`;
-
 function App() {
-  const [name, setName] = useState("");
-  const { loading, data } = useQuery(ALL_PEOPLE);
-
-  const [addPerson] = useMutation(ADD_PERSON, {
-    update: (cache, { data: { addPerson: addPersonData } }) => {
-      const peopleResult = cache.readQuery({ query: ALL_PEOPLE });
-
-      cache.writeQuery({
-        query: ALL_PEOPLE,
-        data: {
-          ...peopleResult,
-          people: [...peopleResult.people, addPersonData],
-        },
-      });
-    },
-  });
+  const { loading: noDeferLoading, data: noDeferData } = useQuery(ALL_PEOPLE_NO_NAME);
+  const { loading: deferLoading, data: deferData } = useQuery(ALL_PEOPLE_WITH_NAME_DEFER);
 
   return (
     <main>
       <h3>Home</h3>
-      <div className="add-person">
-        <label htmlFor="name">Name</label>
-        <input
-          type="text"
-          name="name"
-          value={name}
-          onChange={(evt) => setName(evt.target.value)}
-        />
-        <button
-          onClick={() => {
-            addPerson({ variables: { name } });
-            setName("");
-          }}
-        >
-          Add person
-        </button>
-      </div>
       <h2>Names</h2>
-      {loading ? (
-        <p>Loading…</p>
-      ) : (
-        <ul>
-          {data?.people.map((person) => (
-            <li key={person.id}>{person.name.firstName} {person.name.lastName}</li>
-          ))}
-        </ul>
-      )}
+      <div>
+        {noDeferLoading ? (
+          <p>Loading…</p>
+        ) : (
+          <ul>
+            {noDeferData?.people.map((person) => (
+              <li key={person.id}>{person.name.firstName} {person.name.lastName}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div>
+        {deferLoading ? (
+          <p>Loading…</p>
+        ) : (
+          <ul>
+            {deferData?.people.map((person) => (
+              <li key={person.id}>{person.name.firstName} {person.name.lastName}</li>
+            ))}
+          </ul>
+        )}
+      </div>
     </main>
   );
 }
